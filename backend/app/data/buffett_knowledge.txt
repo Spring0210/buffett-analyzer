@@ -1,0 +1,74 @@
+# Warren Buffett's Investment Philosophy & Financial Rules
+
+## The Core Idea: Durable Competitive Advantage
+Warren Buffett looks for companies with a "moat" — a durable competitive advantage that protects profits for decades. This moat might come from a strong brand (Coca-Cola), network effects (Visa), switching costs (Microsoft Office), or cost advantages (GEICO). Without a moat, even a great business will see its profits competed away over time.
+
+## Rule 1: Gross Margin ≥ 40%
+Gross Margin = Gross Profit / Total Revenue. Buffett considers a gross margin of 40% or higher a key signal of competitive advantage. High gross margins mean the company controls pricing — customers are willing to pay a premium because no close substitute exists. Companies with gross margins below 40% often compete on price, which erodes profits. Examples: Coca-Cola and Apple consistently show gross margins above 55%.
+
+## Rule 2: SG&A Expense Margin ≤ 30%
+SG&A Margin = Selling, General & Administrative Expense / Gross Profit. Great companies with strong moats don't need to spend enormous amounts on marketing or overhead to attract customers. If a company spends more than 30% of gross profit on SG&A, it suggests it lacks natural demand pull and must "buy" customers through advertising or sales force. Wide-moat companies like Moody's spend very little on SG&A relative to gross profit.
+
+## Rule 3: R&D Expense Margin ≤ 30%
+R&D Margin = R&D Expense / Gross Profit. Buffett is cautious about companies that depend heavily on R&D spending to stay competitive. If a company must constantly re-invent itself to maintain its edge, that advantage is fragile. R&D spending that exceeds 30% of gross profit often signals a technology treadmill rather than a stable moat. Buffett historically avoided semiconductor and pharmaceutical companies for this reason.
+
+## Rule 4: Depreciation Margin ≤ 10%
+Depreciation Margin = Reconciled Depreciation / Gross Profit. Heavy depreciation means the company relies on expensive, aging assets — factories, machinery, infrastructure — to generate revenue. These assets must constantly be replaced (capital expenditure). Buffett prefers asset-light businesses: software companies, financial services, consumer brands. A depreciation margin under 10% suggests the business earns money from intangible strengths, not from costly physical plant.
+
+## Rule 5: Interest Expense Margin ≤ 15%
+Interest Expense Margin = Interest Expense / Operating Income. Buffett views significant debt as a liability to the business, not just the balance sheet. A company that must spend 15% or more of its operating income on interest payments is financially constrained. It has less flexibility to invest, weather downturns, or return capital to shareholders. Great businesses like See's Candies and Coca-Cola can operate at near-zero leverage because their earnings are so predictable and strong.
+
+## Rule 6: Effective Tax Rate ≈ Current Corporate Rate (15%–30%)
+Tax Rate = Tax Provision / Pre-Tax Income. Surprisingly, Buffett considers paying taxes at the full corporate rate to be a sign of a great business. If a company's effective tax rate is much lower than 21%, it might be masking earnings with deductions, operating in tax havens, or deferring taxes in ways that could reverse. Companies so profitable they pay full taxes have nowhere to hide income — it's genuinely exceptional earnings.
+
+## Rule 7: Net Profit Margin ≥ 20%
+Net Margin = Net Income / Total Revenue. This is one of Buffett's most important metrics. A 20%+ net margin means the company keeps 20 cents of every dollar in revenue as profit after all expenses, taxes, and interest. This level of profitability is rare and almost always signals a durable moat. Compare: Grocery stores have 1–3% net margins; Coca-Cola consistently earns 20%+; Moody's earns 30%+.
+
+## Rule 8: EPS Growth — Consistent and Positive
+EPS Growth = EPS(Year N) / EPS(Year N-1). Buffett wants to see earnings per share growing year over year. Consistent EPS growth — not just revenue growth — shows the business is becoming more profitable and is returning value to shareholders. A ratio above 1.0 means EPS grew. Buffett also looks at 10-year EPS trend lines to distinguish genuine compounders from cyclical businesses temporarily riding good conditions.
+
+## Rule 9: Cash vs. Current Debt — More Cash than Debt
+Ratio = Cash & Cash Equivalents / Current Debt. A ratio greater than 1.0 means the company holds more cash than it owes in short-term debt. This financial fortress mentality is classic Buffett. Companies with strong cash positions can survive recessions, acquire competitors opportunistically, and don't face existential risk from credit crunches. Berkshire Hathaway itself holds $150+ billion in cash as a permanent policy.
+
+## Rule 10: Adjusted Debt-to-Equity < 0.80
+Adj. D/E = Total Debt / (Total Assets − Total Debt). Buffett prefers equity-financed companies. When debt is less than 80% of equity, the business has a solid financial foundation. Highly leveraged companies are vulnerable to rising interest rates, economic slowdowns, and refinancing risk. Buffett has said: "I've seen more people fail because of liquor and leverage than for almost any other reason."
+
+## Rule 11: CapEx Margin < 25%
+CapEx Margin = Capital Expenditures / Net Income. Capital-intensive businesses must reinvest heavily just to maintain their current position — airlines, car manufacturers, utilities, telecoms. Buffett calls this "capital consumption." When CapEx exceeds 25% of net income, less cash is available for dividends, buybacks, or acquisitions. He strongly prefers businesses like insurance, software, and consumer brands that earn high returns while spending little on fixed assets.
+
+## Treasury Stock: A Positive Signal
+Buffett views share buybacks as a highly favorable sign. When a company repurchases its own stock, it reduces the share count, increasing EPS for remaining shareholders. This only creates value when the stock is bought below intrinsic value — which requires management to be honest about valuation. Companies like Apple have returned hundreds of billions through buybacks. The presence of treasury stock on the balance sheet confirms the company actively buys back shares.
+
+## Preferred Stock: A Negative Signal
+Buffett views the issuance of preferred stock as a warning sign. Companies that need preferred stock are typically unable to fund themselves through earnings or ordinary equity. Preferred dividends are a senior obligation that drains cash before common shareholders see anything. Strong businesses can fund all operations and growth through their own earnings — they never need to offer preferred terms to attract capital.
+
+## Retained Earnings: Should Grow Every Year
+Retained Earnings = Cumulative undistributed profits. Buffett views rising retained earnings as proof that the company is compounding value over time. If retained earnings decline year over year, the company is either losing money, paying excessive dividends it can't afford, or repurchasing stock at overvalued prices. Growing retained earnings, compounded over decades, is how companies like Berkshire Hathaway create extraordinary wealth.
+
+## The Owner Earnings Framework
+Buffett prefers "owner earnings" over reported net income: Net Income + Depreciation & Amortization − CapEx − Working Capital increases. This approximates the true cash a business produces for its owners each year. A company with $1 billion in net income but $900 million in annual CapEx requirements generates almost no real value for shareholders. Owner earnings expose the difference between accounting profits and real economic profit.
+
+## How to Think About Moats
+The four sources of competitive advantage Buffett looks for:
+1. **Intangible assets** — brands, patents, regulatory licenses (Coca-Cola brand, Moody's ratings franchise)
+2. **Switching costs** — high cost for customers to switch (Oracle databases, Bloomberg terminals)
+3. **Network effects** — product becomes more valuable as more people use it (Visa, Mastercard)
+4. **Cost advantages** — ability to produce cheaper than competitors (GEICO's direct-to-consumer model)
+
+## Buffett's Margin of Safety
+Buffett requires a "margin of safety" — buying at a significant discount to intrinsic value. Intrinsic value is the present value of all future owner earnings discounted at an appropriate rate. Because the future is uncertain, Buffett demands a 25–50% discount to intrinsic value before buying. This margin protects against errors in valuation, unforeseen business deterioration, and market misjudgment.
+
+## The Circle of Competence
+Buffett only invests in businesses he can thoroughly understand. He famously avoided tech stocks during the dot-com bubble because he couldn't predict which companies would dominate. "Risk comes from not knowing what you are doing." Investors should define their circle of competence — industries and business models they truly understand — and resist investing outside it.
+
+## Long-Term Holding Philosophy
+Buffett's ideal holding period is "forever." He looks for businesses so durable that he never needs to sell. This approach minimizes taxes, avoids transaction costs, and allows compounding to work uninterrupted. Buffett has held Coca-Cola stock since 1988. The power of compounding over 30+ years transforms even modest annual returns into extraordinary wealth.
+
+## Avoiding Commodity Businesses
+Buffett strongly avoids commodity businesses — airlines, steel, oil, agriculture — where products are indistinguishable and competition is brutal. In commodity markets, the lowest-cost producer wins, and margins trend toward zero over time. He has described airlines as a "death trap for investors" due to the industry's consistent inability to earn returns above its cost of capital over long periods.
+
+## Management Quality
+Beyond numbers, Buffett evaluates management honesty and capital allocation skill. He asks: Does management treat shareholders like partners? Do they repurchase stock only when it's undervalued? Do their letters to shareholders acknowledge mistakes? Do they resist the institutional imperative — the urge to follow industry peers into bad decisions? Good management compounds the advantages of a great business; bad management destroys even the best franchise.
+
+## When the Numbers Tell the Story
+A company passing most of Buffett's 11 ratio tests is a rare find. Buffett estimates that only about 1 in 10 businesses he evaluates meets his criteria. When most ratios pass — especially gross margin, net margin, and CapEx margin — it strongly suggests a business with a durable moat earning above-average returns on equity. When most ratios fail, no amount of growth or momentum should convince a disciplined investor to buy.
