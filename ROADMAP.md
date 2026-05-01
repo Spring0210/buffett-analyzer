@@ -69,7 +69,7 @@
   — All queries retrieve from the same undifferentiated corpus regardless of sector or question type.
   — Fix (later): split into domain-specific documents (Buffett principles, tech sector, consumer staples, etc.) and tag with metadata for filtered retrieval.
 
-- [ ] **No rate limiting on API routes**
+- [x] **No rate limiting on API routes**
   — A single client can flood yfinance with requests, triggering Yahoo Finance IP bans.
   — Fix: add `slowapi` rate limiter (e.g. 10 req/min per IP on stock endpoints).
 
@@ -149,7 +149,7 @@
 - [ ] Export results to CSV
 
 ### 3.3 Watchlist
-- [ ] Save stocks to personal watchlist (localStorage)
+- [x] Save stocks to personal watchlist (localStorage)
 - [ ] Daily score change notifications (if backend cron job)
 - [ ] Side-by-side comparison of up to 4 stocks
 

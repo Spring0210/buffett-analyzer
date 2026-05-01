@@ -1,5 +1,7 @@
 import type { StockQuote, MoatResult } from '../../types'
 import { getCurrencySymbol } from '../../utils/currency'
+import { useWatchlist } from '../../context/WatchlistContext'
+import { useStock } from '../../context/StockContext'
 
 function fmt(n: number | null | undefined, decimals = 2): string {
   if (n === null || n === undefined) return '—'
@@ -219,6 +221,48 @@ function TargetRangeBar({ price, low, mean, median, high, analysts, sym }: {
   )
 }
 
+function StarButton({ ticker, quote }: { ticker: string; quote: StockQuote }) {
+  const { add, remove, has } = useWatchlist()
+  const { weightedScore } = useStock()
+  const saved = has(ticker)
+
+  function toggle(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (saved) {
+      remove(ticker)
+    } else {
+      add({
+        ticker,
+        name: quote.name ?? ticker,
+        price: quote.price ?? null,
+        score: weightedScore || null,
+        sector: quote.sector ?? null,
+        currency: quote.currency ?? null,
+        addedAt: new Date().toISOString(),
+      })
+    }
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      title={saved ? 'Remove from watchlist' : 'Add to watchlist'}
+      className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+      style={{
+        background: saved ? 'rgba(255,159,10,0.15)' : 'rgba(255,255,255,0.06)',
+        color: saved ? '#FF9F0A' : 'rgba(235,235,245,0.35)',
+        border: saved ? '1px solid rgba(255,159,10,0.3)' : '1px solid transparent',
+      }}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24"
+        fill={saved ? 'currentColor' : 'none'}
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    </button>
+  )
+}
+
 export default function StockOverview({ ticker, quote, moat }: Props) {
   const sym = getCurrencySymbol(quote.currency)
   const isUp = (quote.changesPercentage ?? 0) >= 0
@@ -252,13 +296,16 @@ export default function StockOverview({ ticker, quote, moat }: Props) {
           </div>
         </div>
 
-        <div className="text-right">
-          <p className="text-2xl font-bold tabular-nums" style={{ color: '#F5F5F7' }}>
-            {sym}{fmt(quote.price)}
-          </p>
-          <p className="text-xs font-mono mt-0.5" style={{ color: changeColor }}>
-            {isUp ? '+' : ''}{fmt(quote.change)} ({isUp ? '+' : ''}{fmt(quote.changesPercentage)}%)
-          </p>
+        <div className="flex items-center gap-3">
+          <StarButton ticker={ticker} quote={quote} />
+          <div className="text-right">
+            <p className="text-2xl font-bold tabular-nums" style={{ color: '#F5F5F7' }}>
+              {sym}{fmt(quote.price)}
+            </p>
+            <p className="text-xs font-mono mt-0.5" style={{ color: changeColor }}>
+              {isUp ? '+' : ''}{fmt(quote.change)} ({isUp ? '+' : ''}{fmt(quote.changesPercentage)}%)
+            </p>
+          </div>
         </div>
       </div>
 

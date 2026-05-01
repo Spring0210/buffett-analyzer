@@ -1,7 +1,7 @@
 import asyncio
 import re
 from dataclasses import asdict
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.services.financial import get_stock_data, get_stock_quote, get_price_history
@@ -9,6 +9,7 @@ from app.services.buffett import compute_ratios, compute_weighted_score, compute
 from app.services.rag import stream_recommendation
 from app.services.valuation import compute_valuation
 from app.services.moat import compute_moat
+from app.limiter import limiter
 
 router = APIRouter()
 
@@ -23,7 +24,8 @@ def _validate_ticker(ticker: str) -> str:
 
 
 @router.get("/{ticker}/quote")
-async def get_quote(ticker: str):
+@limiter.limit("30/minute")
+async def get_quote(request: Request, ticker: str):
     ticker = _validate_ticker(ticker)
     try:
         return await get_stock_quote(ticker)
@@ -32,7 +34,8 @@ async def get_quote(ticker: str):
 
 
 @router.get("/{ticker}/financials")
-async def get_financials(ticker: str):
+@limiter.limit("20/minute")
+async def get_financials(request: Request, ticker: str):
     ticker = _validate_ticker(ticker)
     try:
         return await get_stock_data(ticker)
@@ -41,7 +44,8 @@ async def get_financials(ticker: str):
 
 
 @router.get("/{ticker}/ratios")
-async def get_ratios(ticker: str):
+@limiter.limit("20/minute")
+async def get_ratios(request: Request, ticker: str):
     ticker = _validate_ticker(ticker)
     try:
         data, quote = await asyncio.gather(
@@ -75,7 +79,8 @@ _PERIOD_INTERVAL: dict[str, str] = {
 }
 
 @router.get("/{ticker}/history")
-async def get_history(ticker: str, period: str = "1y"):
+@limiter.limit("20/minute")
+async def get_history(request: Request, ticker: str, period: str = "1y"):
     ticker = _validate_ticker(ticker)
     if period not in _PERIOD_INTERVAL:
         raise HTTPException(status_code=400, detail=f"Invalid period. Use one of: {', '.join(_PERIOD_INTERVAL)}")
@@ -86,7 +91,8 @@ async def get_history(ticker: str, period: str = "1y"):
 
 
 @router.get("/{ticker}/valuation")
-async def get_valuation(ticker: str):
+@limiter.limit("20/minute")
+async def get_valuation(request: Request, ticker: str):
     ticker = _validate_ticker(ticker)
     try:
         quote, data = await asyncio.gather(
@@ -99,7 +105,8 @@ async def get_valuation(ticker: str):
 
 
 @router.get("/{ticker}/moat")
-async def get_moat(ticker: str):
+@limiter.limit("20/minute")
+async def get_moat(request: Request, ticker: str):
     ticker = _validate_ticker(ticker)
     try:
         quote = await get_stock_quote(ticker)
@@ -116,7 +123,8 @@ class RecommendationRequest(BaseModel):
 
 
 @router.post("/recommendation")
-def get_recommendation(req: RecommendationRequest):
+@limiter.limit("5/minute")
+def get_recommendation(request: Request, req: RecommendationRequest):
     """Stream an AI-generated investment recommendation based on Buffett metrics."""
     ticker = _validate_ticker(req.ticker)
     return StreamingResponse(

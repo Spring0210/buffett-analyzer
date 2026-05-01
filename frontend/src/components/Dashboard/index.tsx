@@ -6,6 +6,7 @@ import StatementTable from './StatementTable'
 import StockOverview from './StockOverview'
 import AIRecommendation from './AIRecommendation'
 import ValuationPanel from './ValuationPanel'
+import Watchlist from './Watchlist'
 import type { Section } from '../../types'
 
 const SECTION_LABELS: Record<Section, string> = {
@@ -14,6 +15,7 @@ const SECTION_LABELS: Record<Section, string> = {
   valuation:  'Valuation Models',
   statements: 'Financial Statements',
   ai:         'AI Investment Analysis',
+  watchlist:  'Watchlist',
 }
 
 function SectionHeader({ section }: { section: Section }) {
@@ -26,9 +28,9 @@ function SectionHeader({ section }: { section: Section }) {
   )
 }
 
-interface Props { section: Section }
+interface Props { section: Section; onNavigate: (s: Section) => void }
 
-export default function Dashboard({ section }: Props) {
+export default function Dashboard({ section, onNavigate }: Props) {
   const { ticker, quote, ratios, weightedScore, financials, moat, loading, error } = useStock()
 
   // Full-screen loader only on first search (no data yet)
@@ -178,6 +180,7 @@ export default function Dashboard({ section }: Props) {
             </p>
           )}
           {section === 'ai'         && <AIRecommendation />}
+          {section === 'watchlist'  && <Watchlist onNavigate={onNavigate} />}
         </div>
       </div>
     </div>

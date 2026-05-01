@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { StockProvider } from './context/StockContext'
+import { WatchlistProvider } from './context/WatchlistContext'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
@@ -13,25 +14,27 @@ export default function App() {
 
   return (
     <StockProvider>
-      <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#1C1C1E' }}>
-        <Header />
-        <div className="flex-1 flex overflow-hidden min-h-0 relative">
-          <Sidebar
-            active={section}
-            onNavigate={setSection}
-            chatOpen={chatOpen}
-            onChatToggle={() => setChatOpen(p => !p)}
-          />
-          <main className="flex-1 overflow-y-auto min-w-0">
+      <WatchlistProvider>
+        <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#1C1C1E' }}>
+          <Header />
+          <div className="flex-1 flex overflow-hidden min-h-0 relative">
+            <Sidebar
+              active={section}
+              onNavigate={setSection}
+              chatOpen={chatOpen}
+              onChatToggle={() => setChatOpen(p => !p)}
+            />
+            <main className="flex-1 overflow-y-auto min-w-0">
+              <ErrorBoundary>
+                <Dashboard section={section} onNavigate={setSection} />
+              </ErrorBoundary>
+            </main>
             <ErrorBoundary>
-              <Dashboard section={section} />
+              <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
             </ErrorBoundary>
-          </main>
-          <ErrorBoundary>
-            <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
-          </ErrorBoundary>
+          </div>
         </div>
-      </div>
+      </WatchlistProvider>
     </StockProvider>
   )
 }

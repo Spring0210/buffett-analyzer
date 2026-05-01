@@ -1,4 +1,5 @@
 import type { Section } from '../types'
+import { useWatchlist } from '../context/WatchlistContext'
 
 interface Props {
   active: Section
@@ -59,6 +60,15 @@ function AIIcon() {
   )
 }
 
+function WatchlistIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  )
+}
+
 function ChatIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -74,9 +84,10 @@ interface NavItemProps {
   icon: React.ReactNode
   isActive: boolean
   onClick: () => void
+  badge?: number
 }
 
-function NavItem({ label, icon, isActive, onClick }: NavItemProps) {
+function NavItem({ label, icon, isActive, onClick, badge }: NavItemProps) {
   return (
     <button
       onClick={onClick}
@@ -106,7 +117,15 @@ function NavItem({ label, icon, isActive, onClick }: NavItemProps) {
         }
       }}
     >
-      {icon}
+      <div className="relative">
+        {icon}
+        {badge != null && badge > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center"
+            style={{ background: '#FF9F0A', color: '#1C1C1E' }}>
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
       <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         {label}
       </span>
@@ -121,9 +140,12 @@ const NAV: { id: Section; label: string; icon: () => React.ReactNode }[] = [
   { id: 'valuation',  label: 'Valuation',   icon: ValuationIcon },
   { id: 'statements', label: 'Statements',  icon: TableIcon     },
   { id: 'ai',         label: 'AI Pick',     icon: AIIcon        },
+  { id: 'watchlist',  label: 'Watchlist',   icon: WatchlistIcon },
 ]
 
 export default function Sidebar({ active, onNavigate, chatOpen, onChatToggle }: Props) {
+  const { entries } = useWatchlist()
+
   return (
     <nav
       style={{
@@ -147,6 +169,7 @@ export default function Sidebar({ active, onNavigate, chatOpen, onChatToggle }: 
           icon={<item.icon />}
           isActive={active === item.id}
           onClick={() => onNavigate(item.id)}
+          badge={item.id === 'watchlist' ? entries.length : undefined}
         />
       ))}
 

@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.services.rag import stream_chat
+from app.limiter import limiter
 
 router = APIRouter()
 
@@ -14,10 +15,11 @@ class ChatRequest(BaseModel):
 
 
 @router.post("")
-def chat(request: ChatRequest):
+@limiter.limit("10/minute")
+def chat(request: Request, body: ChatRequest):
     """Stream an LLM response with RAG context and full conversation history."""
     return StreamingResponse(
-        stream_chat(request.question, request.ticker, request.ratios, request.history),
+        stream_chat(body.question, body.ticker, body.ratios, body.history),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

@@ -96,7 +96,7 @@ export interface MoatResult {
   indicators: string[]
 }
 
-export type Section = 'ratios' | 'chart' | 'valuation' | 'statements' | 'ai'
+export type Section = 'ratios' | 'chart' | 'valuation' | 'statements' | 'ai' | 'watchlist'
 
 export interface Message {
   role: 'user' | 'assistant'
