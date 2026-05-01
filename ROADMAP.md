@@ -94,13 +94,13 @@
 - [x] Sector/industry framing
 - [x] Multi-year trend data for key metrics
 - [x] Modern metrics (ROE, FCF Yield, PEG) in context
-- [ ] Few-shot example in system prompt
+- [x] Few-shot example in system prompt
 - [ ] Prompt caching for repeated tickers
 
 ### 1.3 Scoring Refinements
-- [ ] Industry-adjusted thresholds (e.g., R&D threshold higher for tech)
-- [ ] Trend bonus: metrics that improved 3 years in a row get +weight
-- [ ] Penalty system: metrics in freefall get negative weight
+- [x] Industry-adjusted thresholds (e.g., R&D threshold higher for tech)
+- [x] Trend bonus: metrics that improved 3 years in a row get +weight
+- [x] Penalty system: metrics in freefall get negative weight
 
 ### 1.4 StockOverview Panel
 - [x] Sector & Industry display

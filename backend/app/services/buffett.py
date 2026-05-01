@@ -35,6 +35,58 @@ def _nth(statement: dict, field: str, n: int) -> Optional[float]:
     return statement[cols[n]].get(field)
 
 
+def _sector_threshold(sector: str, metric: str) -> tuple[str, float]:
+    """Return (threshold_label, numeric_limit) adjusted for sector norms."""
+    s = sector.lower()
+    is_tech      = "technology" in s or "software" in s
+    is_fin       = "financial" in s
+    is_health    = "health" in s or "biotech" in s or "pharma" in s
+    is_util      = "utilit" in s
+    is_energy    = "energy" in s
+    is_mats      = "materials" in s
+    is_realestate = "real estate" in s
+    is_staples   = "consumer defensive" in s or "consumer staple" in s
+
+    if metric == "Gross Margin":
+        if is_fin:                          return "≥ 15%", 0.15
+        if is_util or is_staples:           return "≥ 25%", 0.25
+        if is_energy or is_mats:            return "≥ 20%", 0.20
+        return "≥ 40%", 0.40
+
+    if metric == "R&D Margin":
+        if is_tech:                         return "≤ 60%", 0.60
+        if is_health:                       return "≤ 80%", 0.80
+        return "≤ 30%", 0.30
+
+    if metric == "SG&A Margin":
+        if is_tech or is_health:            return "≤ 50%", 0.50
+        return "≤ 30%", 0.30
+
+    if metric == "Net Profit Margin":
+        if is_fin or is_util or is_energy or is_mats or is_staples:
+            return "≥ 10%", 0.10
+        return "≥ 20%", 0.20
+
+    if metric == "Interest Expense Margin":
+        if is_fin:                          return "≤ 80%", 0.80
+        if is_util:                         return "≤ 40%", 0.40
+        return "≤ 15%", 0.15
+
+    if metric == "Adj. Debt-to-Equity":
+        if is_fin:                          return "< 5.0",  5.0
+        if is_util:                         return "< 2.0",  2.0
+        if is_realestate:                   return "< 2.5",  2.5
+        return "< 0.80", 0.80
+
+    if metric == "CapEx Margin":
+        if is_util:                         return "< 75%", 0.75
+        if is_energy:                       return "< 60%", 0.60
+        if is_realestate:                   return "< 80%", 0.80
+        return "< 25%", 0.25
+
+    return "", 0.0  # unreachable
+
+
 def compute_weighted_score(ratios: list[BuffettRatio]) -> float:
     """
     Weighted score 0-100, normalized to exclude N/A metrics.
@@ -47,7 +99,47 @@ def compute_weighted_score(ratios: list[BuffettRatio]) -> float:
     return round(passing_weight / scored_weight * 100, 1)
 
 
-def compute_ratios(data: dict) -> list[BuffettRatio]:
+def compute_trend_adjustment(data: dict) -> float:
+    """
+    Score adjustment based on multi-year metric trends. Range: −10 to +5.
+
+    Bonus:   EPS grew 3 consecutive years (+3), Revenue grew 3 years (+2).
+    Penalty: EPS fell 2+ consecutive years (−5), Revenue fell 2+ years (−3),
+             Net Income fell 2+ consecutive years (−2).
+    """
+    fin = data.get("financials", {})
+
+    eps = [_nth(fin, "Basic EPS", i) for i in range(4)]
+    rev = [_nth(fin, "Total Revenue", i) for i in range(4)]
+    net = [_nth(fin, "Net Income", i) for i in range(3)]
+
+    adj = 0.0
+
+    # EPS trend (index 0 = most recent year)
+    if all(e is not None for e in eps):
+        if eps[0] > eps[1] > eps[2] > eps[3]:  # type: ignore[operator]
+            adj += 3.0
+        elif eps[0] < eps[1] and eps[1] < eps[2]:  # type: ignore[operator]
+            adj -= 5.0
+        elif eps[0] < eps[1]:  # type: ignore[operator]
+            adj -= 2.0
+
+    # Revenue trend
+    if all(r is not None for r in rev):
+        if rev[0] > rev[1] > rev[2] > rev[3]:  # type: ignore[operator]
+            adj += 2.0
+        elif rev[0] < rev[1] and rev[1] < rev[2]:  # type: ignore[operator]
+            adj -= 3.0
+
+    # Net Income freefall
+    if all(n is not None for n in net):
+        if net[0] < net[1] and net[1] < net[2]:  # type: ignore[operator]
+            adj -= 2.0
+
+    return round(max(-10.0, min(5.0, adj)), 1)
+
+
+def compute_ratios(data: dict, sector: str = "") -> list[BuffettRatio]:
     fin = data.get("financials", {})
     bal = data.get("balanceSheet", {})
     cf  = data.get("cashflow", {})
@@ -60,11 +152,12 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     revenue      = _latest(fin, "Total Revenue")
     op_income    = _latest(fin, "Operating Income")
 
-    # 1. Gross Margin — most important moat signal
+    # 1. Gross Margin
     gm = _div(gross_profit, revenue)
+    gm_thresh, gm_limit = _sector_threshold(sector, "Gross Margin")
     ratios.append(BuffettRatio(
-        name="Gross Margin", value=gm, threshold="≥ 40%",
-        passes=(gm >= 0.40) if gm is not None else None,
+        name="Gross Margin", value=gm, threshold=gm_thresh,
+        passes=(gm >= gm_limit) if gm is not None else None,
         equation="Gross Profit / Total Revenue",
         description="Measures how much revenue remains after direct production costs.",
         buffett_logic="Signals a durable competitive advantage — the company isn't competing on price.",
@@ -74,9 +167,10 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     # 2. SG&A Margin
     sga  = _latest(fin, "Selling General And Administration")
     sgam = _div(sga, gross_profit)
+    sga_thresh, sga_limit = _sector_threshold(sector, "SG&A Margin")
     ratios.append(BuffettRatio(
-        name="SG&A Margin", value=sgam, threshold="≤ 30%",
-        passes=(sgam <= 0.30) if sgam is not None else None,
+        name="SG&A Margin", value=sgam, threshold=sga_thresh,
+        passes=(sgam <= sga_limit) if sgam is not None else None,
         equation="SG&A Expense / Gross Profit",
         description="Selling, General & Administrative expenses as a share of gross profit.",
         buffett_logic="Wide-moat companies don't need heavy overhead spending to operate.",
@@ -86,16 +180,17 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     # 3. R&D Margin
     rnd  = _latest(fin, "Research And Development")
     rndm = _div(rnd, gross_profit)
+    rnd_thresh, rnd_limit = _sector_threshold(sector, "R&D Margin")
     ratios.append(BuffettRatio(
-        name="R&D Margin", value=rndm, threshold="≤ 30%",
-        passes=(rndm <= 0.30) if rndm is not None else None,
+        name="R&D Margin", value=rndm, threshold=rnd_thresh,
+        passes=(rndm <= rnd_limit) if rndm is not None else None,
         equation="R&D Expense / Gross Profit",
         description="Research & Development spending as a share of gross profit.",
         buffett_logic="Heavy R&D dependence means the competitive advantage isn't guaranteed to last.",
         category="Income Statement", weight=0.04,
     ))
 
-    # 4. Depreciation Margin
+    # 4. Depreciation Margin (no sector adjustment — asset-lightness is universal)
     dep  = _latest(fin, "Reconciled Depreciation")
     depm = _div(dep, gross_profit)
     ratios.append(BuffettRatio(
@@ -112,16 +207,17 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     intm = _div(interest, op_income)
     if intm is not None:
         intm = abs(intm)
+    int_thresh, int_limit = _sector_threshold(sector, "Interest Expense Margin")
     ratios.append(BuffettRatio(
-        name="Interest Expense Margin", value=intm, threshold="≤ 15%",
-        passes=(intm <= 0.15) if intm is not None else None,
+        name="Interest Expense Margin", value=intm, threshold=int_thresh,
+        passes=(intm <= int_limit) if intm is not None else None,
         equation="Interest Expense / Operating Income",
         description="How much of operating income is consumed by interest payments.",
         buffett_logic="Great businesses self-finance with earnings — they don't need much debt.",
         category="Income Statement", weight=0.08,
     ))
 
-    # 6. Effective Tax Rate
+    # 6. Effective Tax Rate (no sector adjustment)
     tax    = _latest(fin, "Tax Provision")
     pretax = _latest(fin, "Pretax Income")
     taxr   = _div(tax, pretax)
@@ -137,16 +233,17 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     # 7. Net Profit Margin
     net_income = _latest(fin, "Net Income")
     nm = _div(net_income, revenue)
+    nm_thresh, nm_limit = _sector_threshold(sector, "Net Profit Margin")
     ratios.append(BuffettRatio(
-        name="Net Profit Margin", value=nm, threshold="≥ 20%",
-        passes=(nm >= 0.20) if nm is not None else None,
+        name="Net Profit Margin", value=nm, threshold=nm_thresh,
+        passes=(nm >= nm_limit) if nm is not None else None,
         equation="Net Income / Total Revenue",
         description="Percentage of revenue that becomes net profit.",
-        buffett_logic="Great companies consistently convert 20%+ of revenue into net profit.",
+        buffett_logic="Great companies consistently convert a high percentage of revenue into net profit.",
         category="Income Statement", weight=0.11,
     ))
 
-    # 8. EPS Growth (YoY)
+    # 8. EPS Growth (YoY) — no sector adjustment
     eps_0      = _nth(fin, "Basic EPS", 0)
     eps_1      = _nth(fin, "Basic EPS", 1)
     eps_growth = _div(eps_0, eps_1)
@@ -161,7 +258,7 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
 
     # ── Balance Sheet ─────────────────────────────────────────────────────────
 
-    # 9. Cash vs Current Debt
+    # 9. Cash vs Current Debt (no sector adjustment)
     cash         = _latest(bal, "Cash And Cash Equivalents")
     current_debt = _latest(bal, "Current Debt")
     cvd = _div(cash, current_debt)
@@ -179,16 +276,17 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     total_assets = _latest(bal, "Total Assets")
     equity_proxy = (total_assets - total_debt) if (total_assets and total_debt) else None
     dte = _div(total_debt, equity_proxy)
+    dte_thresh, dte_limit = _sector_threshold(sector, "Adj. Debt-to-Equity")
     ratios.append(BuffettRatio(
-        name="Adj. Debt-to-Equity", value=dte, threshold="< 0.80",
-        passes=(dte < 0.80) if dte is not None else None,
+        name="Adj. Debt-to-Equity", value=dte, threshold=dte_thresh,
+        passes=(dte < dte_limit) if dte is not None else None,
         equation="Total Debt / (Total Assets − Total Debt)",
         description="Debt relative to equity (assets minus debt as a proxy for equity).",
         buffett_logic="Great companies fund growth through equity and retained earnings, not debt.",
         category="Balance Sheet", weight=0.09,
     ))
 
-    # 11. Preferred Stock
+    # 11. Preferred Stock (no sector adjustment)
     preferred = _latest(bal, "Preferred Stock")
     ratios.append(BuffettRatio(
         name="Preferred Stock", value=preferred, threshold="None (= $0)",
@@ -199,7 +297,7 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
         category="Balance Sheet", weight=0.01,
     ))
 
-    # 12. Retained Earnings Growth
+    # 12. Retained Earnings Growth (no sector adjustment)
     re_0 = _nth(bal, "Retained Earnings", 0)
     re_1 = _nth(bal, "Retained Earnings", 1)
     re_growth = _div(re_0, re_1) if (re_0 is not None and re_1 is not None) else None
@@ -212,7 +310,7 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
         category="Balance Sheet", weight=0.09,
     ))
 
-    # 13. Treasury Stock
+    # 13. Treasury Stock (no sector adjustment)
     treasury = _latest(bal, "Treasury Stock")
     ratios.append(BuffettRatio(
         name="Treasury Stock", value=treasury, threshold="Exists (non-zero)",
@@ -231,9 +329,10 @@ def compute_ratios(data: dict) -> list[BuffettRatio]:
     if capex is not None:
         capex = abs(capex)
     cxm = _div(capex, net_income_cf)
+    cx_thresh, cx_limit = _sector_threshold(sector, "CapEx Margin")
     ratios.append(BuffettRatio(
-        name="CapEx Margin", value=cxm, threshold="< 25%",
-        passes=(cxm < 0.25) if cxm is not None else None,
+        name="CapEx Margin", value=cxm, threshold=cx_thresh,
+        passes=(cxm < cx_limit) if cxm is not None else None,
         equation="CapEx / Net Income From Continuing Operations",
         description="Capital expenditure as a percentage of net income.",
         buffett_logic="Great companies don't need heavy equipment investment to sustain their profits.",

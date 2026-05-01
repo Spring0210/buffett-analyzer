@@ -1,10 +1,11 @@
+import asyncio
 import re
 from dataclasses import asdict
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.services.financial import get_stock_data, get_stock_quote, get_price_history
-from app.services.buffett import compute_ratios, compute_weighted_score
+from app.services.buffett import compute_ratios, compute_weighted_score, compute_trend_adjustment
 from app.services.rag import stream_recommendation
 from app.services.valuation import compute_valuation
 from app.services.moat import compute_moat
@@ -43,13 +44,20 @@ async def get_financials(ticker: str):
 async def get_ratios(ticker: str):
     ticker = _validate_ticker(ticker)
     try:
-        data   = await get_stock_data(ticker)
-        ratios = compute_ratios(data)
-        score  = compute_weighted_score(ratios)
+        data, quote = await asyncio.gather(
+            get_stock_data(ticker),
+            get_stock_quote(ticker),
+        )
+        sector       = quote.get("sector", "")
+        ratios       = compute_ratios(data, sector=sector)
+        base_score   = compute_weighted_score(ratios)
+        trend_adj    = compute_trend_adjustment(data)
+        weighted_score = round(min(100.0, max(0.0, base_score + trend_adj)), 1)
         return {
-            "ticker":         ticker,
-            "ratios":         [asdict(r) for r in ratios],
-            "weighted_score": score,
+            "ticker":           ticker,
+            "ratios":           [asdict(r) for r in ratios],
+            "weighted_score":   weighted_score,
+            "trend_adjustment": trend_adj,
         }
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
